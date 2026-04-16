@@ -8,7 +8,7 @@
 <title></title>
 <script>
 //ログインページにリダイレクト
-location.href="/javaSystemDev_fix/scoremanager/Login.action";
+location.href="/seisekikanri(login-nothing)/scoremanager/Login.action";
 </script>
 </head>
 <body>
