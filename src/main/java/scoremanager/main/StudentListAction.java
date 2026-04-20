@@ -6,12 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import bean.School;
 import bean.Student;
+import bean.Teacher;
 import dao.ClassNumDao;
 import dao.StudentDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class StudentListAction extends Action {
@@ -19,13 +20,13 @@ public class StudentListAction extends Action {
 	@Override
 	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-		// HttpSession session = req.getSession(); // コメントアウト
-		// Teacher teacher = (Teacher)session.getAttribute("user"); // コメントアウト
+		 HttpSession session = req.getSession(); // コメントアウト
+		 Teacher teacher = (Teacher)session.getAttribute("user"); // コメントアウト
 
 		// 【代わりの処理】ログイン情報の代わりに、仮の学校情報を設定
 		// 本来はログインした先生の学校を使いますが、今回はテスト用に「oom」校として動かします
-		School school = new School();
-		school.setCd("oom"); // お使いのテストデータに合わせた学校コードを指定してください
+//		School school = new School();
+//		school.setCd("oom"); // お使いのテストデータに合わせた学校コードを指定してください
 
 		// ローカル変数の指定 1
 		// 画面から送られてくる検索条件や、DBから取ってきたデータを入れるための「箱」を準備します
@@ -65,23 +66,23 @@ public class StudentListAction extends Action {
 		// DBからデータ取得 3
 		// 【変更】teacher.getSchool() を school に書き換え
 		// その学校に登録されているクラス番号（A組、B組など）の一覧をDBから取ってきます
-		List<String> list = classNumDao.filter(school);
+		List<String> list = classNumDao.filter(teacher.getSchool());
 
 		// ここで「どういう条件で検索するか」を判断し、DB（Dao）に命令を出します
 		if (entYear != 0 && classNum != null && !classNum.equals("0")) {
 			// 入学年度とクラス番号を指定（例：2023年の1組）
-			students = studentDao.filter(school, entYear, classNum, isAttend);
+			students = studentDao.filter(teacher.getSchool(), entYear, classNum, isAttend);
 		} else if (entYear != 0 && (classNum == null || classNum.equals("0"))) {
 			// 入学年度のみ指定（例：2023年の全クラス）
-			students = studentDao.filter(school, entYear, isAttend);
+			students = studentDao.filter(teacher.getSchool(), entYear, isAttend);
 		} else if (entYear == 0 && (classNum == null || classNum.equals("0"))) {
 			// 指定なし（例：学校の全生徒）
-			students = studentDao.filter(school, isAttend);
+			students = studentDao.filter(teacher.getSchool(), isAttend);
 		} else {
 			// クラスだけ選んで年度を忘れた場合、エラーメッセージを出して全表示にします
 			errors.put("f1", "クラスを指定する場合は入学年度も指定してください");
 			req.setAttribute("errors", errors);
-			students = studentDao.filter(school, isAttend);
+			students = studentDao.filter(teacher.getSchool(), isAttend);
 		}
 
 		// レスポンス値をセット 6
